@@ -3,7 +3,7 @@
 This library enables adding new API endpoints to support customer requirements 
 
 
-### Who is permitted to manage mutation
+### Who is permitted to invoke these endpoints
 
 In the root folder there is a file `extended-api-acls.json`
 ```json
@@ -12,12 +12,12 @@ In the root folder there is a file `extended-api-acls.json`
 }
 ```
 
-The following users can manage Mutation using their Domino API Key:
+The following users can invoke the endpoints using their Domino API Key/Token:
 
 1. Domino Administrators
 2. Users listed in the `extended-api-acls.json`
 
-Currently these users can call endpoints. In the future it is possible to allow users access to specific endpoints   
+Currently these users can call all endpoints. In the future it is possible to allow users access to specific endpoints   
    
 
 ###Installation
@@ -70,6 +70,19 @@ Type : POST
 Headers and Body:
 ```
 --header 'X-Domino-Api-Key: ADD YOUR API KEY HERE ' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "users": {
+        "wadkars": 3600,
+        "integration-test":  21600
+    },
+    "override_to_default" : false
+}'
+```
+Or if using the bearer token obtained from `http://localhost:8899/access-token`
+
+```shell
+--header 'Authorization: Bearer <ADD YOUR TOKEN HERE>' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "users": {

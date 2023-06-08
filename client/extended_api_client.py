@@ -21,3 +21,18 @@ headers = {
 response = requests.request("POST", url, headers=headers, data=payload)
 
 print(response.text)
+
+## Alternatively from inside the workspace you could run. This is a safer approach to using the API Key
+
+access_token_endpoint='http://localhost:8899/access-token'
+resp = requests.get(access_token_endpoint)
+
+
+token = resp.text
+headers = {
+             "Content-Type": "application/json",
+             "Authorization": "Bearer " + token,
+        }
+response = requests.request("POST", url, headers=headers, data=payload)
+
+print(response.text)

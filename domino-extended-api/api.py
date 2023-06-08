@@ -53,10 +53,10 @@ def create_database_connection():
     return MongoClient(mongo_uri)[db_name]
 
 
-def is_user_authorized(api_key: str):
+def is_user_authorized(headers):
     acls: Dict = get_api_acls()
     url: str = os.path.join(DOMINO_NUCLEUS_URI, WHO_AM_I_ENDPOINT)
-    ret: Dict = requests.get(url, headers={"X-Domino-Api-Key": api_key})
+    ret: Dict = requests.get(url, headers=headers)
     if ret.status_code == 200:
         user: str = ret.json()
         user_name: str = user["canonicalName"]
@@ -133,6 +133,13 @@ def get_central_config_parameters(client: MongoClient):
         wks_notification_duration,
     )
 
+def _get_headers(headers):
+    new_headers = {}
+    if 'X-Domino-Api-Key' in headers:
+        new_headers['X-Domino-Api-Key'] = headers['X-Domino-Api-Key']
+    elif 'Authorization' in headers:
+        new_headers['Authorization'] = headers['Authorization']
+    return new_headers
 
 """
 1. Get all info on domino autoshutdown from central config
@@ -146,8 +153,9 @@ def get_central_config_parameters(client: MongoClient):
 
 @app.route("/v4-extended/autoshutdownwksrules", methods=["POST"])
 def apply_autoshutdown_rules() -> object:
+    headers = _get_headers(request.headers)
     try:
-        if not is_user_authorized(request.headers["X-Domino-Api-Key"]):
+        if not is_user_authorized(headers):
             return Response(
                 "Unauthorized - Must be Domino Admin or one of the allowed users",
                 403,
